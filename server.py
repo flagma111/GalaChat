@@ -1,17 +1,34 @@
 import socket
+
 sock = socket.socket()
 sock.bind(('', 9090))
 sock.listen(5)
+sock.settimeout(0.01)
+
+conn_list = []
 
 while True:
-    conn, addr = sock.accept()
-    print ('connected:', addr)
-      
-    while True:
-        data = conn.recv(1024)
-        udata = data.decode("utf-8")
-        print("Data: " + udata)    
+    
+    for i in range(5):
+        try:
+            conn,addr = sock.accept()
+            conn_list.append(conn)
+            conn.settimeout(0.01)
+            print ('connected:', addr, 'conn count:', len(conn_list))
+        except:
+            pass
+        
+    for curr_conn in conn_list:
+        data = False
+        
+        try:
+            data = curr_conn.recv(1024)
+        except:
+            pass 
+        
         if not data:
-            break
-        conn.send(udata.upper().encode("utf-8"))
-conn.close()
+            continue        
+        udata = data.decode("utf-8")
+        print('send data:',udata)
+        for curr_conn in conn_list:
+            curr_conn.send(udata.encode("utf-8"))         
