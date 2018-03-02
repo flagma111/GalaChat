@@ -1,4 +1,4 @@
-import socket
+import socket, chatSQL
 
 conn_count = 5
 
@@ -17,6 +17,7 @@ while True:
         try:
             conn,addr = sock.accept()
             conn_list.append(conn)
+            chatSQL.check_new_port(addr)
             conn.settimeout(0.01)
             print ('connected:', addr, 'conn count:', len(conn_list))
         except:

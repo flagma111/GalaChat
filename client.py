@@ -1,5 +1,4 @@
-import socket
-import time
+import socket, time
 from tkinter import *
 
 def close_hadler():
