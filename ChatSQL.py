@@ -3,8 +3,8 @@ from os import getcwd
 
 directory = getcwd()
 sql_base_directory = directory + '\\base.db'
-sql_conn = sqlite3.connect(sql_base_directory)
-sql_cur = sql_conn.cursor() 
+sql_conn = sqlite3.connect(sql_base_directory,check_same_thread=False)
+sql_cur = sql_conn.cursor()
 
 def create_users_table():
 
@@ -22,8 +22,9 @@ def create_users_table():
     sql_conn.commit() 
 
 def find_user(user):
-    user_val = (user,)
-    sql_cur.execute('select name,password from users where user = ?',user_val)
+    global sql_cur
+
+    sql_cur.execute('select user,name,password from users where user = "{}"'.format(user))
     return sql_cur.fetchone()
 
 def add_user(user):
@@ -31,10 +32,9 @@ def add_user(user):
     print('user added - ',user)
     sql_conn.commit()
     
-def check_new_port(port):
-    user = port[0]
-    if find_user(user) == None:
-        add_user(user)
+def check_new_addres(addres):
+    if find_user(addres) == None:
+        add_user(addres)
 
 def get_all_users():
     sql_cur.execute('select * from users')
@@ -43,10 +43,6 @@ def get_all_users():
 
 def clear_users():
     sql_cur.execute('delete from users')
-
-
-    
-    
 
 
 
