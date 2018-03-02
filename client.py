@@ -2,6 +2,10 @@ import socket
 import time
 from tkinter import *
 
+def close_hadler():
+    sock.close()
+    tk.destroy()
+
 tk=Tk()
 tk.title('GalaChat')
 tk.geometry('400x300')
@@ -21,10 +25,6 @@ msg = Entry(tk, textvariable=text)
 msg.pack(side='bottom', fill='x', expand='true')
 nick.pack(side='bottom', fill='x', expand='true')
 log.pack(side='top', fill='both',expand='true')
-
-def close_hadler():
-    sock.close()
-    tk.destroy()
 
 def loopproc(): 
     log.see(END)

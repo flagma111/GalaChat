@@ -33,7 +33,7 @@ while True:
         if not data:
             continue        
         udata = data.decode("utf-8")
-        print(recv_conn.getpeername()[0],udata)
+        print(recv_conn.getpeername()[0] + ": " + udata)
         for send_conn in conn_list:
             curr_user = recv_conn.getpeername()[0]
             message =  curr_user + ": " + udata
