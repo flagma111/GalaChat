@@ -3,9 +3,10 @@ import socket
 conn_count = 5
 
 sock = socket.socket()
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
+sock.settimeout(0.01)
 sock.bind(('', 9090))
 sock.listen(conn_count)
-sock.settimeout(0.01)
 
 conn_list = []
 conns_to_clear = []
@@ -32,9 +33,9 @@ while True:
         if not data:
             continue        
         udata = data.decode("utf-8")
-        print('send data:',udata)
+        print(recv_conn.getpeername()[0],udata)
         for send_conn in conn_list:
-            curr_user = send_conn.getsockname()[0]
+            curr_user = recv_conn.getpeername()[0]
             message =  curr_user + ": " + udata
             try:
                 send_conn.send(message.encode("utf-8"))
