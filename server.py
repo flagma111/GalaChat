@@ -3,7 +3,7 @@ import socket
 conn_count = 5
 
 sock = socket.socket()
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 2)
 sock.settimeout(0.01)
 sock.bind(('', 9090))
 sock.listen(conn_count)

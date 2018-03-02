@@ -8,7 +8,7 @@ tk.geometry('400x300')
 tk.protocol("WM_DELETE_WINDOW", close_hadler)
 
 sock = socket.socket()
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 2)
 
 text=StringVar()
 name=StringVar()
