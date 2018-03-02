@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import socket, chatSQL, time, threading 
+=======
+import socket, ChatSQL
+>>>>>>> ccc865ff8dfc22598fcc8411dcfc564b11997d97
 
 conn_count = 5
 
@@ -46,7 +50,11 @@ def receiving():
         try:
             conn,addr = sock.accept()
             conn_list.append(conn)
+<<<<<<< HEAD
             chatSQL.check_new_addres(addr[0])
+=======
+            ChatSQL.check_new_port(addr)
+>>>>>>> ccc865ff8dfc22598fcc8411dcfc564b11997d97
             conn.settimeout(0.01)
             print ('connected:', addr, 'conn count:', len(conn_list))
         except socket.timeout:
