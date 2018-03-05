@@ -6,6 +6,8 @@ sql_base_directory = directory + '\\base.db'
 sql_conn = sqlite3.connect(sql_base_directory,check_same_thread=False)
 sql_cur = sql_conn.cursor()
 
+#TODO Убрать IP во всех функциях
+
 def create_users_table():
 
     try:
