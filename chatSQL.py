@@ -27,15 +27,23 @@ def find_user(user):
     sql_cur.execute('select user,name,password from users where user = "{}"'.format(user))
     return sql_cur.fetchone()
 
-def add_user(user):
-    sql_cur.execute('insert into users(user) values ("{}")'.format(user))
-    print('user added - ',user)
+def add_user(IP,name,pwd):
+    sql_cur.execute('insert into users(user) values ("{}")'.format(IP))
+    print('user added - ',IP)
     sql_conn.commit()
     
-def check_new_addres(addres):
+def check_new_IP(addres):
     if find_user(addres) == None:
-        add_user(addres)
+        return False
+    else:
+        return True
 
+def authorization(IP,pwd):
+    global sql_cur
+
+    sql_cur.execute('select password from users where user = "{}" and password ="{}"'.format(IP,pwd))
+    return sql_cur.fetchone() != None
+ 
 def get_all_users():
     sql_cur.execute('select * from users')
     for user in sql_cur:
