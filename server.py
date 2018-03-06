@@ -36,7 +36,7 @@ def receiving_connections():
         try:
             conn,addr = sock.accept()
             connections_for_reg_auth.append(conn)
-            message = json_massage('authorization_registration') 
+            message = json_message('auth_reg') 
             send_message(message,conn)
             conn.settimeout(0.01)
         except socket.timeout:
@@ -72,6 +72,7 @@ def receiving_messages():
     #Получение сообщений от авторизованных пользователей
     for user in current_user_list:
         user_conn = user[0]
+        user_name = user[1]
         message_dict = receive_message(user_conn)
         #TODO Добавить личную отправку сообщения, пока только общая рассылка
         #TODO Отправлять сообщения в отдельном потоке
@@ -80,34 +81,34 @@ def receiving_messages():
             text = message_dict['context'] 
             for recipient_user in current_user_list:
                 recipient_user_conn = recipient_user[0]
-                sending_message = json_massage('message',text)
+                sending_message = json_message('message',text,'',user_name)
                 send_message(sending_message,recipient_user_conn)
 
     #Получение сообщений на регистрацию/авторизацию
     corrent_connections_list = connections_for_reg_auth.copy()
     for recv_conn in corrent_connections_list:
         message_dict = receive_message(recv_conn)
-        if message_dict['type'] == 'authorization':
+        if message_dict['type'] == 'auth':
             content = message_dict['content']
             name = content['name']
             pwd = content['pwd']
             if authorization(name,pwd) == True:
-                message = json_massage('authorization_successful')
+                message = json_message('auth_successful')
                 authorized_users.append((recv_conn,name))
             else:
-                message = json_massage('authorization_failed')
-        elif message_dict['type'] == 'authorization':
+                message = json_message('auth_failed')
+        elif message_dict['type'] == 'reg':
             content = message_dict['content']
             name = content['name']
             pwd = content['pwd']
             if registration(name,pwd) == True:
-                message = json_massage('authorization')
+                message = json_message('reg_successful')
                 send_message(message,recv_conn)
             else:
-                message = json_massage('registration_failed')
+                message = json_message('reg_failed')
                 send_message(message,recv_conn)
         else:
-            message = json_massage('unknown_command')
+            message = json_message('unknown_command')
             authorized_users.append((recv_conn,name))
 
 def send_message(message,connection):  
@@ -130,8 +131,8 @@ def disconnect_user(connection):
     print(connection.getpeername()[0] + " is disconnected")
     connections_for_shutdown.append(connection)
 
-def json_massage(type,content = '',recipient = ''):
-    return json.dumps({'type': type,'content': content,'recipient': recipient})
+def json_message(type,content = '',recipient = '', sender = ''):
+    return json.dumps({'type': type,'content': content,'recipient': recipient, 'sender': sender})
 
 def main():
 
