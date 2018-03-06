@@ -17,46 +17,56 @@ connections_for_reg_auth = []
                     
 def receiving_connections():
     global authorized_users
-    global connections_for_shutdown
     global connections_for_reg_auth
+    global connections_for_shutdown
 
     while True:
 
         #Удаление отключенных соединений
         for curr_con in connections_for_shutdown:
-                authorized_users.remove(curr_con)
-        connections_for_shutdown = []
+                try:
+                    authorized_users.remove(curr_con)
+                except ValueError:
+                    connections_for_reg_auth.remove(curr_con)
+                except:
+                    pass #TODO Обрабатывать ошибку
+                connections_for_shutdown = []      
 
-        #Получение новых соединений, если IP есть в базе, то отправляется сообщение на авторизацию, иначе - сообщение на регистрацию
+        #Получение новых соединений, отправляется сообщение на регистрацию/авторизацию
         try:
             conn,addr = sock.accept()
             connections_for_reg_auth.append(conn)
-            if chatSQL.check_new_IP(addr[0]) == True:
-                message = json_massage('authorization') 
-            else:
-                message = json_massage('registration')
+            message = json_massage('authorization_registration') 
             send_message(message,conn)
             conn.settimeout(0.01)
         except socket.timeout:
             pass
 
 def receiving_messages():
+    global authorized_users
 
     def receive_message(recv_conn):
         data = False   
         try:
             data = recv_conn.recv(4096)
-        except:
-            pass 
+        except ConnectionAbortedError:
+            disconnect_user(recv_conn) 
         
         if not data:
             return None
+        try:
+            #TODO Добавить логгирование ошибок
+            #TODO Добавить полную проверку состава сообщения для избежания ошибок
+            udata = data.decode("utf-8")#Данные принимаются в формате json
+            data_dict = json.load(udata)
+            if type(data_dict) != dict:
+                return None
+            if 'type' in data_dict == False:
+                return None
+            return data_dict
+        except:
+            return None
 
-        udata = data.decode("utf-8")#Данные принимаются в формате json
-        #TODO Добавить проверки на тип сообщения
-        return json.load(udata)
-
-    global authorized_users
     current_user_list = authorized_users.copy()#Получение текущей версии списка авторизованных пользователей
 
     #Получение сообщений от авторизованных пользователей
@@ -66,7 +76,6 @@ def receiving_messages():
         #TODO Добавить личную отправку сообщения, пока только общая рассылка
         #TODO Отправлять сообщения в отдельном потоке
 
-        #TODO Добавить проверку типа принятого сообщения
         if message_dict['type'] == 'message':
             text = message_dict['context'] 
             for recipient_user in current_user_list:
@@ -80,7 +89,6 @@ def receiving_messages():
         message_dict = receive_message(recv_conn)
         if message_dict['type'] == 'authorization':
             content = message_dict['content']
-            #TODO Добавить проверку на тип контента
             name = content['name']
             pwd = content['pwd']
             if authorization(name,pwd) == True:
@@ -127,14 +135,16 @@ def json_massage(type,content = '',recipient = ''):
 
 def main():
 
-#Запуск потоков
-#receiving_connections_thread = threading.Thread(target=receiving_connections)
-#receiving_connections_thread.start()
+    #Запуск потоков
+    receiving_connections_thread = threading.Thread(target=receiving_connections)
+    receiving_connections_thread.start()
 
-#receiving_messages_thread = threading.Thread(target=receiving_messages)
-#receiving_messages_thread.start()
+    receiving_messages_thread = threading.Thread(target=receiving_messages)
+    receiving_messages_thread.start()
+
     active_count = threading.active_count()
     while active_count != 0:
+        #TODO Добавить логгирование
         time.sleep(1)
 
 main()

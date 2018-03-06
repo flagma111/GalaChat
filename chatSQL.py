@@ -6,8 +6,6 @@ sql_base_directory = directory + '\\base.db'
 sql_conn = sqlite3.connect(sql_base_directory,check_same_thread=False)
 sql_cur = sql_conn.cursor()
 
-#TODO Убрать IP во всех функциях
-
 def create_users_table():
 
     try:
@@ -17,7 +15,6 @@ def create_users_table():
     
     sql_script = '''CREATE TABLE users (
     user VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(50),
     password VARCHAR(50) );''' 
     
     sql_cur.execute(sql_script)
@@ -26,24 +23,18 @@ def create_users_table():
 def find_user(user):
     global sql_cur
 
-    sql_cur.execute('select user,name,password from users where user = "{}"'.format(user))
+    sql_cur.execute('select user,password from users where user = "{}"'.format(user))
     return sql_cur.fetchone()
 
-def add_user(IP,name,pwd):
-    sql_cur.execute('insert into users(user) values ("{}")'.format(IP))
-    print('user added - ',IP)
+def add_user(name,pwd):
+    sql_cur.execute('insert into users(user,password) values ("{}","{}")'.format(name,pwd))
+    print('user added - ',name)
     sql_conn.commit()
     
-def check_new_IP(addres):
-    if find_user(addres) == None:
-        return False
-    else:
-        return True
-
-def authorization(IP,pwd):
+def authorization(name,pwd):
     global sql_cur
 
-    sql_cur.execute('select password from users where user = "{}" and password ="{}"'.format(IP,pwd))
+    sql_cur.execute('select password from users where user = "{}" and password ="{}"'.format(name,pwd))
     return sql_cur.fetchone() != None
  
 def get_all_users():
