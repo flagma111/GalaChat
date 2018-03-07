@@ -88,6 +88,8 @@ def receiving_messages():
     corrent_connections_list = connections_for_reg_auth.copy()
     for recv_conn in corrent_connections_list:
         message_dict = receive_message(recv_conn)
+        if message_dict == None:
+            continue
         if message_dict['type'] == 'auth':
             content = message_dict['content']
             name = content['name']
@@ -103,13 +105,11 @@ def receiving_messages():
             pwd = content['pwd']
             if registration(name,pwd) == True:
                 message = json_message('reg_successful')
-                send_message(message,recv_conn)
             else:
                 message = json_message('reg_failed')
-                send_message(message,recv_conn)
         else:
             message = json_message('unknown_command')
-            authorized_users.append((recv_conn,name))
+        send_message(message,recv_conn)
 
 def send_message(message,connection):  
     connection.send(message.encode("utf-8"))
