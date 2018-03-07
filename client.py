@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 import socket, time
 import tkinter as tk
+from tkinter import ttk
 import json
 
 class Client:
-    
+
     def __init__(self):
         self.user = User()
         self.server = ("localhost", 9090)
         self.connection_try = 0
         self.connection_timeout = 5
+
+        self.cmd_handlers = {
+            "auth_successful": self.auth_succ,
+            "reg_successful": self.reg_succ,
+            "auth_failed": self.auth_fail,
+            "reg_failed": self.reg_fail,
+        }
 
         self.init_GUI()
         self.init_network()
@@ -50,12 +58,28 @@ class Client:
         try:
             self.network.connect()
             self.status.set("Подключен к " + str(self.network.addr) + ":" + str(self.network.port))
-            self.root.after(1, self.recv_message)
+            self.root.after(1, self.login)
             self.connection_try = 0
         except socket.timeout:
             self.status.set("Сервер не отвечает, попытка подключения через " + str(self.connection_timeout) + " секунд... (Попытка " + str(self.connection_try) + ")")
         finally:
             self.root.after(self.connection_timeout * 1000, self.connect)
+
+    def login(self):
+        dialog = tk.Toplevel(self.root)
+        
+    
+    def auth_succ(self):
+        pass
+
+    def reg_succ(self):
+        pass
+
+    def auth_fail(self):
+        pass
+
+    def reg_fail(self):
+        pass
 
     def clear_input(self):
         self.e_input.delete(1.0, tk.END)
@@ -63,16 +87,20 @@ class Client:
     def send_message(self, event):
         message = self.e_input.get(1.0, tk.END).strip()
         self.root.after(1, self.clear_input)
-        self.network.send(message.encode("utf-8"))
+        self.network.send(json.dumps({"type": "message", "content": message}).encode("utf-8"))
 
     def recv_message(self):
         try:
             message = self.network.recv()
-            obj = json.loads(message)
-            #if (obj["type"] == "message"):
-            self.e_log.insert(tk.END, message.decode("utf-8")+"\n")
-            self.e_log.see(tk.END)
-            #elif (obj["type"] == "auth_reg"):
+            obj = json.loads(message.decode("utf-8"))
+            if (obj["type"] == "message"):
+                self.e_log.insert(tk.END, obj["sender"] + ": " + obj["content"] +"\n")
+                self.e_log.see(tk.END)
+            elif (obj["type"] in self.cmd_handlers):
+                self.cmd_handlers["type"]()
+            else:
+                self.e_log.insert(tk.END, "\n")
+                self.e_log.see(tk.END)
                 
         finally:
             self.root.after(10, self.recv_message)
