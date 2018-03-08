@@ -1,0 +1,10 @@
+[2018-03-08 11:19:37,061] INFO     Server starting... 
+[2018-03-08 11:19:37,088] INFO     All threads are started
+[2018-03-08 11:20:20,163] CRITICAL Receiving connections thread stopted!
+[2018-03-08 11:20:30,171] INFO     Server stopted
+[2018-03-08 11:21:26,618] INFO     Server starting... 
+[2018-03-08 11:21:26,659] INFO     All threads are started
+[2018-03-08 11:24:20,214] INFO     Server starting... 
+[2018-03-08 11:24:20,266] INFO     All threads are started
+[2018-03-08 11:25:32,234] INFO     New connection added  - 127.0.0.1:56996
+[2018-03-08 11:25:32,241] INFO     Message sent   - 127.0.0.1
